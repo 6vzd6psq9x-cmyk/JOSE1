@@ -1,0 +1,225 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="es">\
+<head>\
+    <meta charset="UTF-8">\
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
+    <title>Contador Interactivo | Netlify Ready</title>\
+    \
+    <script src="https://cdn.tailwindcss.com"></script>\
+    \
+    <script>\
+        tailwind.config = \{\
+            theme: \{\
+                extend: \{\
+                    fontFamily: \{\
+                        // Inter es una fuente moderna y legible\
+                        inter: ['Inter', 'sans-serif'],\
+                    \},\
+                \},\
+            \}\
+        \}\
+    </script>\
+    \
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>\
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>\
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>\
+    \
+    <style>\
+        /* Asegura que el contenedor principal ocupe toda la pantalla y elimina m\'e1rgenes */\
+        body, #root \{\
+            margin: 0;\
+            padding: 0;\
+            width: 100vw;\
+            height: 100vh;\
+            overflow: hidden; /* Evita barras de desplazamiento */\
+        \}\
+    </style>\
+</head>\
+<body>\
+\
+    <div id="root"></div>\
+\
+    <script type="text/babel">\
+        const \{ useState, useCallback \} = React;\
+\
+        // Lista de clases de color de fondo de Tailwind para el cambio aleatorio\
+        const BACKGROUND_COLORS = [\
+            'bg-red-700', 'bg-blue-700', 'bg-green-700', 'bg-yellow-700',\
+            'bg-purple-700', 'bg-pink-700', 'bg-indigo-700', 'bg-teal-700',\
+            'bg-orange-700', 'bg-gray-800'\
+        ];\
+\
+        // Icono SVG para Configuraci\'f3n (Rueda dentada)\
+        const SettingsIcon = (props) => (\
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"\
+                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"\
+                strokeLinejoin="round" \{...props\}>\
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.35a2 2 0 0 0 .72 2.73l.15.08a2 2 0 0 1 1 1.73v.44a2 2 0 0 1-1 1.73l-.15.08a2 2 0 0 0-.73 2.73l.78 1.35a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73v.18a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.35a2 2 0 0 0-.72-2.73l-.15-.08a2 2 0 0 1-1-1.73v-.44a2 2 0 0 1 1-1.73l.15-.08a2 2 0 0 0 .73-2.73l-.78-1.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>\
+            </svg>\
+        );\
+\
+        // Componente principal de la aplicaci\'f3n de Contador\
+        const App = () => \{\
+            // --- Estados de la Aplicaci\'f3n ---\
+            const [count, setCount] = useState(0); // Valor actual del contador\
+            const [backgroundColor, setBackgroundColor] = useState('bg-slate-900'); // Clase de color de fondo\
+            const [isSettingsOpen, setIsSettingsOpen] = useState(false); // Estado del men\'fa de configuraci\'f3n\
+            const [isColorChangeEnabled, setIsColorChangeEnabled] = useState(true); // Controla si el color cambia con el clic\
+\
+            // --- L\'f3gica de Cambio de Color ---\
+\
+            // Funci\'f3n para obtener un nuevo color de fondo aleatorio, evitando el actual\
+            const getNewRandomColor = useCallback(() => \{\
+                let newColor = backgroundColor;\
+                // Asegura que el nuevo color sea diferente al actual para una transici\'f3n visible\
+                while (newColor === backgroundColor) \{\
+                    const randomIndex = Math.floor(Math.random() * BACKGROUND_COLORS.length);\
+                    newColor = BACKGROUND_COLORS[randomIndex];\
+                \}\
+                return newColor;\
+            \}, [backgroundColor]);\
+\
+            // Funci\'f3n para cambiar el color de fondo manualmente (usado en el men\'fa)\
+            const handleManualColorChange = useCallback(() => \{\
+                setBackgroundColor(getNewRandomColor());\
+            \}, [getNewRandomColor]);\
+\
+            // --- L\'f3gica del Contador ---\
+\
+            // Maneja el incremento del contador y el cambio de color (si est\'e1 habilitado)\
+            const handleIncrement = useCallback(() => \{\
+                setCount(prevCount => prevCount + 1);\
+\
+                // Caracter\'edstica 1: Cambiar el color de fondo en cada clic, si est\'e1 habilitado\
+                if (isColorChangeEnabled) \{\
+                    setBackgroundColor(getNewRandomColor());\
+                \}\
+            \}, [isColorChangeEnabled, getNewRandomColor]);\
+\
+            // Funci\'f3n para reiniciar el contador (usado en el men\'fa)\
+            const handleReset = useCallback(() => \{\
+                setCount(0);\
+                // Opcional: Cerrar el men\'fa despu\'e9s de la acci\'f3n\
+                setIsSettingsOpen(false);\
+            \}, []);\
+\
+            // Funci\'f3n para alternar la opci\'f3n de cambio de color (usado en el men\'fa)\
+            const handleToggleColorChange = useCallback(() => \{\
+                setIsColorChangeEnabled(prev => !prev);\
+            \}, []);\
+\
+            // --- Renderizado Principal ---\
+            return (\
+                // Contenedor principal: ocupa toda la pantalla y aplica el color de fondo din\'e1mico\
+                <div\
+                    className=\{`relative w-screen h-screen flex flex-col items-center justify-center\
+                    transition-all duration-500 ease-in-out font-inter $\{backgroundColor\} text-white`\}\
+                >\
+                    \{/* Bot\'f3n de Configuraci\'f3n (Esquina superior derecha) - Caracter\'edstica 2 */\}\
+                    <button\
+                        className="absolute top-4 right-4 p-3 bg-white/20 hover:bg-white/30 transition-colors\
+                        rounded-full shadow-lg z-20 focus:outline-none focus:ring-4 focus:ring-white/50"\
+                        onClick=\{() => setIsSettingsOpen(prev => !prev)\}\
+                        aria-label="Abrir Configuraciones"\
+                    >\
+                        <SettingsIcon className="w-6 h-6 text-white" />\
+                    </button>\
+\
+                    \{/* Men\'fa de Configuraci\'f3n Desplegable - Caracter\'edstica 2 */\}\
+                    \{isSettingsOpen && (\
+                        <div className="absolute top-16 right-4 w-64 bg-gray-900/95 backdrop-blur-sm p-4\
+                            rounded-xl shadow-2xl z-10 space-y-3 border border-gray-700/50">\
+                            <h3 className="text-xl font-bold mb-2 border-b border-gray-700 pb-2">Configuraciones</h3>\
+\
+                            \{/* Opci\'f3n 1: Reiniciar Contador */\}\
+                            <button\
+                                onClick=\{handleReset\}\
+                                className="w-full text-left p-3 rounded-lg bg-indigo-600 hover:bg-indigo-700\
+                                transition-all shadow-md flex items-center justify-center font-medium"\
+                            >\
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" viewBox="0 0 24 24"\
+                                    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"\
+                                    strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.76L21 6"/><path\
+                                    d="M21 3v3h-3"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.76L3 18"/><path\
+                                    d="M3 21v-3h3"/></svg>\
+                                Reiniciar Contador\
+                            </button>\
+\
+                            \{/* Opci\'f3n 2: Cambiar Color de Fondo (Manual) */\}\
+                            <button\
+                                onClick=\{handleManualColorChange\}\
+                                className="w-full text-left p-3 rounded-lg bg-teal-600 hover:bg-teal-700 transition-all\
+                                shadow-md flex items-center justify-center font-medium"\
+                            >\
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" viewBox="0 0 24 24"\
+                                    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"\
+                                    strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3 3 3 0 0 0 3-3V5a3 3 0 0 0-3-3z"/><path\
+                                    d="M5 22h14"/><path d="M12 15v7"/></svg>\
+                                Cambiar Color Ahora\
+                            </button>\
+\
+                            \{/* Opci\'f3n 3: Alternar Cambio de Color Autom\'e1tico */\}\
+                            <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg shadow-inner">\
+                                <span className="font-medium text-sm">Cambio de color al hacer clic</span>\
+                                <button\
+                                    onClick=\{handleToggleColorChange\}\
+                                    className=\{`relative inline-flex h-6 w-11 items-center rounded-full transition-colors\
+                                    focus:outline-none focus:ring-2 focus:ring-offset-2 $\{\
+                                        isColorChangeEnabled ? 'bg-green-500 focus:ring-green-500' : 'bg-red-500 focus:ring-red-500'\
+                                    \}`\}\
+                                    aria-checked=\{isColorChangeEnabled\}\
+                                    role="switch"\
+                                >\
+                                    <span\
+                                        className=\{`inline-block h-4 w-4 transform rounded-full bg-white transition-transform $\{\
+                                            isColorChangeEnabled ? 'translate-x-6' : 'translate-x-1'\
+                                        \}`\}\
+                                    />\
+                                </button>\
+                            </div>\
+                            <p className="text-xs text-gray-400 pt-2">El cambio autom\'e1tico est\'e1: <span\
+                            className="font-bold">\{isColorChangeEnabled ? 'Activo' : 'Inactivo'\}</span></p>\
+\
+                        </div>\
+                    )\}\
+\
+                    \{/* \'c1rea del Contador Principal (Grande y centrado) */\}\
+                    <div\
+                        className="text-center cursor-pointer p-8 rounded-2xl shadow-2xl backdrop-blur-sm\
+                        bg-white/10 hover:bg-white/20 transition-all duration-300 transform active:scale-95"\
+                        onClick=\{handleIncrement\}\
+                        role="button"\
+                        tabIndex="0"\
+                        aria-label=\{`El contador actual es $\{count\}. Haz clic para incrementar.`\}\
+                    >\
+                        <p className="text-2xl font-light opacity-80 mb-2">Haz clic para sumar:</p>\
+                        \{/* Los n\'fameros en medio de la pantalla (Dise\'f1o) */\}\
+                        <h1 className="text-9xl font-extrabold tracking-tight select-none">\
+                            \{count\}\
+                        </h1>\
+                    </div>\
+                    \
+                    \{/* Mensaje de estado de color */\}\
+                    <p className="absolute bottom-4 text-sm font-medium opacity-70">\
+                        Fondo din\'e1mico: \{isColorChangeEnabled ? 'Activado' : 'Desactivado'\}\
+                    </p>\
+\
+                </div>\
+            );\
+        \};\
+\
+        // Montar el componente App en el DOM\
+        const root = ReactDOM.createRoot(document.getElementById('root'));\
+        root.render(<App />);\
+\
+    </script>\
+\
+</body>\
+</html>}
